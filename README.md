@@ -57,7 +57,7 @@ atividade-caixa-branca/
 │   ├── saida_testes_original.txt
 │   ├── saida_testes_revisado.txt
 │   └── verificacao_grafos.txt
-├── PLANO_DE_TESTE.xlsx                    # somente a aba CAIXA BRANCO (ESTÁTICO) preenchida
+├── PLANO_DE_TESTE.xlsx                    # modelo da disciplina; somente a aba CAIXA BRANCA (ESTÁTICO) preenchida
 └── README.md                              # este relatório
 ```
 
@@ -115,38 +115,53 @@ Tudo foi executado em Linux x86_64 com OpenJDK 21.0.13.1, Graphviz 2.43.0 e Pyth
 
 ## 3. Análise estática
 
-A inspeção foi feita sobre o código **original**. O registro completo está na planilha **`PLANO_DE_TESTE.xlsx`, aba `CAIXA BRANCO (ESTÁTICO)`**. Cada ocorrência tem os campos:
+A inspeção foi feita sobre o código **original**. O registro completo está na planilha **`PLANO_DE_TESTE.xlsx`** (modelo fornecido na disciplina), **somente na aba `CAIXA BRANCA (ESTÁTICO)`**. As abas INFORMATIVO, SISTEMA, ACEITAÇÃO e HEURISTICA NILSEN foram mantidas como vieram no modelo.
 
-- ID e localização (método e linha);
-- trecho ou comportamento observado;
-- descrição da ocorrência;
-- categoria;
-- severidade e justificativa da severidade;
-- risco/consequência;
-- recomendação.
+A aba segue o formato de checklist do modelo:
 
-A planilha também traz a escala de severidade usada e as observações gerais. Resumo:
+- **Cabeçalho:** projeto/sistema, revisor e data da revisão.
+- **Colunas do modelo:**
+  - **ID**;
+  - **ITEM**, a pergunta de inspeção;
+  - **STATUS** (SIM, NÃO ou NÃO SE APLICA);
+  - **ARTEFATO COM ERRO**, com a localização (método, linha e trecho);
+  - **CORREÇÕES A SEREM REALIZADAS**, que é a recomendação.
+- **Colunas acrescentadas à direita**, para atender aos campos exigidos pelo enunciado:
+  - **DESCRIÇÃO DA OCORRÊNCIA / EVIDÊNCIA**;
+  - **CATEGORIA**;
+  - **SEVERIDADE** e **JUSTIFICATIVA DA SEVERIDADE**;
+  - **RISCO / CONSEQUÊNCIA**;
+  - **REF. README**, com o código EA-xx usado neste relatório.
+- **Cores**, mantendo o padrão do modelo: linha vermelha indica item com ocorrência e linha azul indica item conforme ou não aplicável.
 
-| ID | Local (método / linhas) | Ocorrência (resumo) | Categoria | Severidade |
-|---|---|---|---|---|
-| EA-01 | processar, L41-43 | Captura genérica e vazia: qualquer RuntimeException do bloco try (NullPointerException de precos nulo na L28 ou de pagamento nulo propagada de calcularAcrescimo na L36) é descartada sem registro, sem relançamento e sem sinalização ao chamador. | Tratamento de exceções | **Crítica** |
-| EA-02 | processar / atributo aprovado, L4, 39, 44 | O atributo aprovado só recebe true e nunca volta a false. | Estado dos atributos / Falha lógica | **Crítica** |
-| EA-03 | processar, L29-31 | Preços negativos são ignorados em silêncio e o pedido continua. | Validação de entrada | **Alta** |
-| EA-04 | processar, L28 | precos não é validado: se for null, ocorre NullPointerException em precos.length (engolida pelo EA-01); se for vazio, o laço não executa e o pedido é aprovado com total 0, sobrescrevendo ultimoTotal. | Validação de entrada / Condição de borda | **Alta** |
-| EA-05 | calcularAcrescimo, L8 | switch sobre String nula lança NullPointerException (o switch chama hashCode()); não existe validação nem mensagem explicativa. | Validação de entrada | **Média** |
-| EA-06 | calcularAcrescimo, L19-20 | Qualquer forma de pagamento diferente de "PIX" e "CREDITO" (inclusive "credito" minúsculo, "" ou "BOLETO") cai no default e recebe acréscimo 0, sem aviso. | Falha lógica / Validação de entrada | **Alta** |
-| EA-07 | calcularAcrescimo, L13-17 | parcelas não é validado: 0 ou valores negativos caem no else e são tratados como crédito à vista (3%). | Validação de entrada / Condição de borda | **Média** |
-| EA-08 | calcularAcrescimo, L6, 14, 16 | Método público aceita subtotal negativo ou não finito e devolve acréscimo negativo ou infinito (ex.: ("CREDITO", -100.0, 1) retorna -3.0). | Validação de entrada | **Média** |
-| EA-09 | processar, L37-40 | Condição sempre verdadeira: subtotal só acumula valores >= 0 (ou +Infinity), o desconto multiplica por 0.90 e o acréscimo é 0, 3% ou 8% de um valor >= 0. | Falha lógica / Redundância | **Média** |
-| EA-10 | processar, L29-30, 36 | Double.POSITIVE_INFINITY passa em precos[i] >= 0 e o pedido é aprovado com total Infinity; a soma de valores finitos muito grandes também pode estourar para Infinity. | Condição de borda | **Média** |
-| EA-11 | calcularAcrescimo, L7, 10, 20 | Atribuições redundantes: acrescimo já é 0 desde a L7, e os ramos PIX e default repetem o mesmo valor. | Redundância / Legibilidade | **Baixa** |
-| EA-12 | calcularAcrescimo / processar, L14, 16, 33, 34 | Números mágicos: taxas, limite e fator de desconto aparecem como literais, sem nome nem explicação. | Legibilidade / Boas práticas | **Baixa** |
-| EA-13 | Classe ProcessadorPedidos, L2-50 | Nenhuma documentação: não está escrito o que significa parcelas, a ordem desconto -> acréscimo, o significado do retorno de processar, o conteúdo de getUltimoTotal() ou a unidade monetária. | Documentação | **Baixa** |
-| EA-14 | calcularAcrescimo, L9, 12 | Formas de pagamento como literais String, comparadas com diferenciação de maiúsculas e minúsculas e sem constantes compartilhadas com quem chama. | Boas práticas / Nomenclatura | **Baixa** |
-| EA-15 | Classe ProcessadorPedidos, L3, 26, 30, 34, 36 | Valores monetários representados em double (ponto flutuante binário), sujeitos a erros de arredondamento (ex.: um pedido com precos {0.1, 0.2} gera subtotal 0.30000000000000004, e não 0.30). | Boas práticas / Precisão numérica | **Média** |
-| EA-16 | processar, L25-45 | O método concentra várias responsabilidades (validar e somar itens, aplicar desconto, calcular acréscimo, aprovar e guardar estado), tem nome genérico e retorno boolean que não informa o motivo de uma recusa. | Organização / Responsabilidades | **Baixa** |
-| EA-17 | Classe ProcessadorPedidos, L3-4, 38-39 | Estado mutável compartilhado sem sincronização: a mesma instância usada por várias threads pode misturar ultimoTotal e aprovado de pedidos diferentes. | Boas práticas / Concorrência | **Baixa** |
-| EA-18 | processar, L33-36 | Interação entre os métodos: o acréscimo é calculado sobre o subtotal já com desconto VIP. | Documentação / Regra de negócio | **Baixa** |
+A planilha tem 24 itens:
+
+- as 8 perguntas originais do modelo, respondidas para este código;
+- 16 perguntas acrescentadas para cobrir os temas do enunciado;
+- dos 24, 18 itens têm ocorrência (EA-01 a EA-18) e 6 estão conformes ou não se aplicam: nomenclatura de arquivos e classes, laço sem condição de parada, variável não inicializada, arquitetura, recursos externos e segurança contra injeção ou exposição de dados.
+
+Resumo das ocorrências:
+
+| ID | Item na planilha | Local (método / linhas) | Ocorrência (resumo) | Categoria | Severidade |
+|---|---|---|---|---|---|
+| EA-01 | 8 | processar, L41-43 | Captura genérica e vazia: qualquer RuntimeException do bloco try (NullPointerException de precos nulo na L28 ou de pagamento nulo propagada de calcularAcrescimo na L36) é descartada sem registro, sem relançamento e sem sinalização ao chamador. | Tratamento de exceções | **Crítica** |
+| EA-02 | 9 | processar / atributo aprovado, L4, 39, 44 | O atributo aprovado só recebe true e nunca volta a false. | Estado dos atributos / Falha lógica | **Crítica** |
+| EA-03 | 11 | processar, L29-31 | Preços negativos são ignorados em silêncio e o pedido continua. | Validação de entrada | **Alta** |
+| EA-04 | 10 | processar, L28 | precos não é validado: se for null, ocorre NullPointerException em precos.length (engolida pelo EA-01); se for vazio, o laço não executa e o pedido é aprovado com total 0, sobrescrevendo ultimoTotal. | Validação de entrada / Condição de borda | **Alta** |
+| EA-05 | 5 | calcularAcrescimo, L8 | switch sobre String nula lança NullPointerException (o switch chama hashCode()); não existe validação nem mensagem explicativa. | Validação de entrada | **Média** |
+| EA-06 | 12 | calcularAcrescimo, L19-20 | Qualquer forma de pagamento diferente de "PIX" e "CREDITO" (inclusive "credito" minúsculo, "" ou "BOLETO") cai no default e recebe acréscimo 0, sem aviso. | Falha lógica / Validação de entrada | **Alta** |
+| EA-07 | 13 | calcularAcrescimo, L13-17 | parcelas não é validado: 0 ou valores negativos caem no else e são tratados como crédito à vista (3%). | Validação de entrada / Condição de borda | **Média** |
+| EA-08 | 14 | calcularAcrescimo, L6, 14, 16 | Método público aceita subtotal negativo ou não finito e devolve acréscimo negativo ou infinito (ex.: ("CREDITO", -100.0, 1) retorna -3.0). | Validação de entrada | **Média** |
+| EA-09 | 15 | processar, L37-40 | Condição sempre verdadeira: subtotal só acumula valores >= 0 (ou +Infinity), o desconto multiplica por 0.90 e o acréscimo é 0, 3% ou 8% de um valor >= 0. | Falha lógica / Redundância | **Média** |
+| EA-10 | 16 | processar, L29-30, 36 | Double.POSITIVE_INFINITY passa em precos[i] >= 0 e o pedido é aprovado com total Infinity; a soma de valores finitos muito grandes também pode estourar para Infinity. | Condição de borda | **Média** |
+| EA-11 | 17 | calcularAcrescimo, L7, 10, 20 | Atribuições redundantes: acrescimo já é 0 desde a L7, e os ramos PIX e default repetem o mesmo valor. | Redundância / Legibilidade | **Baixa** |
+| EA-12 | 3 | calcularAcrescimo / processar, L14, 16, 33, 34 | Números mágicos: taxas, limite e fator de desconto aparecem como literais, sem nome nem explicação. | Legibilidade / Boas práticas | **Baixa** |
+| EA-13 | 1 | Classe ProcessadorPedidos, L2-50 | Nenhuma documentação: não está escrito o que significa parcelas, a ordem desconto -> acréscimo, o significado do retorno de processar, o conteúdo de getUltimoTotal() ou a unidade monetária. | Documentação | **Baixa** |
+| EA-14 | 18 | calcularAcrescimo, L9, 12 | Formas de pagamento como literais String, comparadas com diferenciação de maiúsculas e minúsculas e sem constantes compartilhadas com quem chama. | Boas práticas / Nomenclatura | **Baixa** |
+| EA-15 | 19 | Classe ProcessadorPedidos, L3, 26, 30, 34, 36 | Valores monetários representados em double (ponto flutuante binário), sujeitos a erros de arredondamento (ex.: um pedido com precos {0.1, 0.2} gera subtotal 0.30000000000000004, e não 0.30). | Boas práticas / Precisão numérica | **Média** |
+| EA-16 | 20 | processar, L25-45 | O método concentra várias responsabilidades (validar e somar itens, aplicar desconto, calcular acréscimo, aprovar e guardar estado), tem nome genérico e retorno boolean que não informa o motivo de uma recusa. | Organização / Responsabilidades | **Baixa** |
+| EA-17 | 21 | Classe ProcessadorPedidos, L3-4, 38-39 | Estado mutável compartilhado sem sincronização: a mesma instância usada por várias threads pode misturar ultimoTotal e aprovado de pedidos diferentes. | Boas práticas / Concorrência | **Baixa** |
+| EA-18 | 22 | processar, L33-36 | Interação entre os métodos: o acréscimo é calculado sobre o subtotal já com desconto VIP. | Documentação / Regra de negócio | **Baixa** |
 
 **Escala de severidade.**
 
