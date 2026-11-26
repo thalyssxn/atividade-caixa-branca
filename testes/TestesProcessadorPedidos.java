@@ -135,6 +135,10 @@ public class TestesProcessadorPedidos {
                 processarComExcecao(new ProcessadorPedidos(), new double[] {Double.MAX_VALUE, Double.MAX_VALUE},
                         "PIX", false, 1, 0.0));
 
+        caso("CT24", "calcularAcrescimo", "C3", "(\"CREDITO\", Infinity, 1)", "objeto novo",
+                "lanca excecao (subtotal nao finito)",
+                acrescimoComExcecao(new ProcessadorPedidos(), "CREDITO", Double.POSITIVE_INFINITY, 1));
+
         System.out.println("==============================================================");
         System.out.println("Resumo (" + rotulo + "): " + (passou + falhou) + " casos | "
                 + passou + " PASSOU | " + falhou + " FALHOU");

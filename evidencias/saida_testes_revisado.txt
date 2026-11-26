@@ -163,6 +163,13 @@ Java: 21.0.13.1
   Esperado......: lanca excecao (soma dos precos estoura para infinito); getUltimoTotal() = 0.0
   Observado.....: lancou IllegalArgumentException ("A soma dos preços excede o limite representável."); getUltimoTotal() = 0.0
   Situacao......: PASSOU
+
+[CT24] calcularAcrescimo | caminho: C3
+  Entrada.......: ("CREDITO", Infinity, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (subtotal nao finito)
+  Observado.....: lancou IllegalArgumentException ("Subtotal inválido: Infinity")
+  Situacao......: PASSOU
 ==============================================================
-Resumo (REVISADO): 23 casos | 23 PASSOU | 0 FALHOU
+Resumo (REVISADO): 24 casos | 24 PASSOU | 0 FALHOU
 ==============================================================

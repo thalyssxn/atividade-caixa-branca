@@ -1,4 +1,4 @@
-# Evidencia de execucao - gerada em 2026-11-26 17:56:50 -03
+# Evidencia de execucao - gerada em 2026-11-26 18:33:18 -03
 # Ambiente: Linux x86_64
 
 $ java -version
@@ -177,8 +177,15 @@ Java: 21.0.13.1
   Esperado......: lanca excecao (soma dos precos estoura para infinito); getUltimoTotal() = 0.0
   Observado.....: retornou true (nenhuma excecao); getUltimoTotal() = Infinity
   Situacao......: FALHOU
+
+[CT24] calcularAcrescimo | caminho: C3
+  Entrada.......: ("CREDITO", Infinity, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (subtotal nao finito)
+  Observado.....: retornou Infinity (nenhuma excecao)
+  Situacao......: FALHOU
 ==============================================================
-Resumo (ORIGINAL): 23 casos | 9 PASSOU | 14 FALHOU
+Resumo (ORIGINAL): 24 casos | 9 PASSOU | 15 FALHOU
 ==============================================================
 Codigo de saida (original): 1
 ==============================================================
@@ -346,7 +353,14 @@ Java: 21.0.13.1
   Esperado......: lanca excecao (soma dos precos estoura para infinito); getUltimoTotal() = 0.0
   Observado.....: lancou IllegalArgumentException ("A soma dos preços excede o limite representável."); getUltimoTotal() = 0.0
   Situacao......: PASSOU
+
+[CT24] calcularAcrescimo | caminho: C3
+  Entrada.......: ("CREDITO", Infinity, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (subtotal nao finito)
+  Observado.....: lancou IllegalArgumentException ("Subtotal inválido: Infinity")
+  Situacao......: PASSOU
 ==============================================================
-Resumo (REVISADO): 23 casos | 23 PASSOU | 0 FALHOU
+Resumo (REVISADO): 24 casos | 24 PASSOU | 0 FALHOU
 ==============================================================
 Codigo de saida (revisado): 0

@@ -402,7 +402,7 @@ Os conjuntos foram montados pelo **método da linha de base** de McCabe: escolhe
 |---|---|---|---|---|
 | C1 | 1-2-3-4-10-11 | `pagamento` = `"PIX"` | sim | CT01 |
 | C2 (base) | 1-2-3-5-6-8-10-11 | `pagamento` = `"CREDITO"` e `parcelas > 1` | sim | CT02, CT13 |
-| C3 | 1-2-3-5-7-8-10-11 | `pagamento` = `"CREDITO"` e `parcelas <= 1` | sim | CT03, CT06, CT07, CT21, CT22 |
+| C3 | 1-2-3-5-7-8-10-11 | `pagamento` = `"CREDITO"` e `parcelas <= 1` | sim | CT03, CT06, CT07, CT21, CT22, CT24 |
 | C4 | 1-2-3-9-10-11 | `pagamento` não nulo e diferente de `"PIX"`/`"CREDITO"` | sim | CT04, CT05 |
 
 Fora do conjunto básico: `pagamento == null` provoca `NullPointerException` no nó 3, uma saída anormal não desenhada (seção 4.1, item 9). Esse caso é coberto por CT08, CT15 e CT18.
@@ -485,6 +485,7 @@ Em "Pré-condição", "novo" significa um objeto recém-criado (`new Processador
 | CT21 | processar | B1 (2 iterações) + C3 | `([0.0, 50.0], "CREDITO", false, 1)` | novo | true; total 51.5 (R5: preço 0 é válido; R2: 3%) | true; 51.5 | PASSOU | true; 51.5 | PASSOU |
 | CT22 | processar | B1 + C3 | `([50.0], "CREDITO", false, 0)` | novo | exceção (R7); total 0.0 | true; 51.5 | **FALHOU** | IAE "Quantidade de parcelas inválida: 0"; 0.0 | PASSOU |
 | CT23 | processar | B1 (2 iterações) + C1 | `([Double.MAX_VALUE, Double.MAX_VALUE], "PIX", false, 1)` | novo | exceção (R5; soma estoura para infinito); total 0.0 | true; Infinity | **FALHOU** | IAE "A soma dos preços excede o limite representável."; 0.0 | PASSOU |
+| CT24 | calcularAcrescimo | C3 | `("CREDITO", Infinity, 1)` | novo | exceção (R7; subtotal não finito) | retornou Infinity | **FALHOU** | IAE "Subtotal inválido: Infinity" | PASSOU |
 
 **Evidência de cada caso:** o bloco `[CTxx]` em `evidencias/saida_testes_original.txt` e em `evidencias/saida_testes_revisado.txt`. A execução completa, com os comandos, está em `evidencias/execucao_terminal.txt`. Para reproduzir, use o comando da seção 2.
 
@@ -493,18 +494,18 @@ Em "Pré-condição", "novo" significa um objeto recém-criado (`new Processador
 | Tipo | Casos |
 |---|---|
 | Normais | CT01, CT02, CT03, CT09, CT13 |
-| Limites | CT02/CT03 (parcelas 2 e 1), CT12/CT14 (subtotal 100 e 100,01), CT21 (preço 0), CT23 (soma acima do maior `double`) |
-| Erros e entradas inválidas | CT04 a CT08, CT10, CT11, CT15 a CT20, CT22, CT23 |
+| Limites | CT02/CT03 (parcelas 2 e 1), CT12/CT14 (subtotal 100 e 100,01), CT21 (preço 0), CT23 (soma acima do maior `double`), CT24 (subtotal infinito) |
+| Erros e entradas inválidas | CT04 a CT08, CT10, CT11, CT15 a CT20, CT22 a CT24 |
 | Estado e interação entre métodos | CT13 (acréscimo sobre subtotal com desconto), CT17 e CT18 (aprovação herdada), CT15 e CT18 (exceção propagada de `calcularAcrescimo`), CT22 (parcelas inválidas via `processar`) |
 
 ### 7.3 Resumo dos resultados
 
 | Versão | Casos | Passou | Falhou |
 |---|---|---|---|
-| Original | 23 | 9 | 14 |
-| Revisado | 23 | 23 | 0 |
+| Original | 24 | 9 | 15 |
+| Revisado | 24 | 24 | 0 |
 
-As 14 falhas do original são **falhas do legado demonstradas por teste**, e cada uma corresponde a um achado da análise estática:
+As 15 falhas do original são **falhas do legado demonstradas por teste**, e cada uma corresponde a um achado da análise estática:
 
 | Achado | Testes que demonstram |
 |---|---|
@@ -513,7 +514,7 @@ As 14 falhas do original são **falhas do legado demonstradas por teste**, e cad
 | EA-04 | CT10, CT16 |
 | EA-06 | CT04, CT05 |
 | EA-07 | CT06, CT22 |
-| EA-08 | CT07 |
+| EA-08 | CT07, CT24 |
 | EA-10 | CT20, CT23 |
 
 **Cobertura de caminhos básicos no original:** C1 a C4 e B1 a B6 e B8 foram executados. B7 é inviável (seção 6.2).
@@ -544,7 +545,7 @@ O código original está **intacto** em `original/`. A versão revisada está em
 | EA-05 | `pagamento` nulo é rejeitado com mensagem clara. | CT08, CT15 |
 | EA-06 | O `default` lança exceção para forma não suportada. | CT04, CT05 |
 | EA-07 | `parcelas < 1` é rejeitado no crédito. | CT06, CT22 |
-| EA-08 | `subtotal` negativo ou não finito é rejeitado em `calcularAcrescimo`. | CT07 |
+| EA-08 | `subtotal` negativo ou não finito é rejeitado em `calcularAcrescimo`. | CT07, CT24 |
 | EA-09 | Condição `total >= 0`, sempre verdadeira, removida. | justificativa na seção 6.2 |
 | EA-11 / EA-12 / EA-14 | Retorno direto em cada ramo; constantes `TAXA_CREDITO_PARCELADO`, `TAXA_CREDITO_A_VISTA`, `FATOR_DESCONTO_VIP`, `LIMITE_DESCONTO_VIP`, `PAGAMENTO_PIX`, `PAGAMENTO_CREDITO`. | regressão: CT01 a CT03, CT09, CT12 a CT14, CT21 |
 | EA-13 / EA-16 / EA-18 | Javadoc na classe e nos métodos (inclusive a ordem desconto → acréscimo). Validação e soma extraídas para `somarPrecos`. Significado do retorno documentado. | n/a (documentação) |
@@ -565,7 +566,7 @@ O código original está **intacto** em `original/`. A versão revisada está em
 | Confiabilidade | Resultado depende do histórico da instância; aceita vazio, NaN, Infinity e parcelas ≤ 0 | Resultado depende só da chamada; estado atualizado de forma atômica (só após validar) |
 | Tratamento de erros | `catch` genérico vazio; erros invisíveis | Sem capturas vazias; `IllegalArgumentException` com mensagem descritiva |
 | Legibilidade | Números mágicos, atribuições redundantes, sem documentação | Constantes nomeadas, retorno direto, Javadoc, método auxiliar com responsabilidade única |
-| Resultado dos testes | 9/23 | 23/23 |
+| Resultado dos testes | 9/24 | 24/24 |
 
 ### 8.3 Mudança na complexidade ciclomática
 
@@ -583,7 +584,7 @@ A versão revisada foi medida pela contagem de decisões (V(G) = condições sim
 - A complexidade total **aumentou** (12 → 18), porque cada validação explícita acrescenta uma decisão.
 - `processar` ficou bem mais simples (8 → 3): a validação foi para `somarPrecos`, e os dois desvios excepcionais para o `catch` deixaram de existir.
 - O aumento de V(G) é o custo das validações que corrigem os achados de maior risco. Como o enunciado admite, a qualidade melhorou sem redução de V(G).
-- Na versão revisada, o número de casos de teste necessários cresce na mesma proporção. Os 23 casos executados exercitam todos os ramos de validação acrescentados, inclusive o estouro da soma (`!Double.isFinite(soma)`, L143, no CT23).
+- Na versão revisada, o número de casos de teste necessários cresce na mesma proporção. Os 24 casos executados exercitam os dois resultados (verdadeiro e falso) de todas as decisões acrescentadas, inclusive o estouro da soma (`!Double.isFinite(soma)`, L143, no CT23) e o subtotal não finito (`!Double.isFinite(subtotal)`, L65, no CT24).
 
 ---
 
@@ -607,13 +608,13 @@ A análise de caixa branca de `ProcessadorPedidos` chegou aos seguintes resultad
 
 - **Complexidade:** V(G) = 4 para `calcularAcrescimo` e V(G) = 8 para `processar`, confirmados por três formas de cálculo (fórmula, decisões e regiões).
 - **Caminhos:** o conjunto de 8 caminhos básicos de `processar` revelou um caminho inviável (B7). Isso mostra que a verificação `total >= 0` não protege nada.
-- **Defeitos:** os testes demonstraram 14 falhas no código original. As mais graves são a captura vazia de exceções (EA-01) combinada com o atributo `aprovado`, que nunca é reiniciado (EA-02). Juntas, elas fazem a classe **aprovar pedidos que nem foram processados** quando a instância já aprovou um pedido antes.
+- **Defeitos:** os testes demonstraram 15 falhas no código original. As mais graves são a captura vazia de exceções (EA-01) combinada com o atributo `aprovado`, que nunca é reiniciado (EA-02). Juntas, elas fazem a classe **aprovar pedidos que nem foram processados** quando a instância já aprovou um pedido antes.
 - **Versão revisada:**
   - valida todas as entradas;
   - sinaliza erros com exceções descritivas;
   - elimina o estado obsoleto;
   - preserva as regras de negócio originais;
-  - passa nos 23 casos.
+  - passa nos 24 casos.
 - **Complexidade da versão revisada:** a complexidade total aumentou (12 → 18) por causa das validações, enquanto `processar` ficou mais simples (8 → 3).
 
 ### Referências

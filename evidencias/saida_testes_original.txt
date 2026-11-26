@@ -163,6 +163,13 @@ Java: 21.0.13.1
   Esperado......: lanca excecao (soma dos precos estoura para infinito); getUltimoTotal() = 0.0
   Observado.....: retornou true (nenhuma excecao); getUltimoTotal() = Infinity
   Situacao......: FALHOU
+
+[CT24] calcularAcrescimo | caminho: C3
+  Entrada.......: ("CREDITO", Infinity, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (subtotal nao finito)
+  Observado.....: retornou Infinity (nenhuma excecao)
+  Situacao......: FALHOU
 ==============================================================
-Resumo (ORIGINAL): 23 casos | 9 PASSOU | 14 FALHOU
+Resumo (ORIGINAL): 24 casos | 9 PASSOU | 15 FALHOU
 ==============================================================
