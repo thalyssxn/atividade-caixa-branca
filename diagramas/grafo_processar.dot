@@ -1,0 +1,48 @@
+// Grafo de fluxo de controle - processar(...) - código ORIGINAL (linhas 25 a 45)
+// Arestas tracejadas em vermelho = desvios excepcionais para o catch (RuntimeException).
+// Gerar imagem: dot -Tpng grafo_processar.dot -o grafo_processar.png
+digraph processar {
+    graph [label="processar(double[] precos, String pagamento, boolean vip, int parcelas) - ORIGINAL\nN = 16   E = 22   P = 1   V(G) = 22 - 16 + 2 = 8", labelloc=t, fontsize=16, fontname="Helvetica", nodesep=0.7, ranksep=0.5];
+    node  [fontname="Helvetica", fontsize=11, style=filled, fillcolor="#FFFFFF"];
+    edge  [fontname="Helvetica", fontsize=10];
+
+    n1  [label="1\nEntrada (L25)", shape=ellipse, fillcolor="#DDEEFF"];
+    n2  [label="2\nL26: double subtotal = 0\nL27: try {", shape=box];
+    n3  [label="3\nL28: int i = 0", shape=box];
+    n4  [label="4\nL28: i < precos.length", shape=diamond, fillcolor="#FFF4CC"];
+    n5  [label="5\nL29: if (precos[i] >= 0)", shape=diamond, fillcolor="#FFF4CC"];
+    n6  [label="6\nL30: subtotal += precos[i]", shape=box];
+    n7  [label="7\nL28: i++", shape=box];
+    n8  [label="8\nL33: vip", shape=diamond, fillcolor="#FFF4CC"];
+    n9  [label="9\nL33: subtotal > 100", shape=diamond, fillcolor="#FFF4CC"];
+    n10 [label="10\nL34: subtotal =\nsubtotal * 0.90", shape=box];
+    n11 [label="11\nL36: total = subtotal +\ncalcularAcrescimo(pagamento,\nsubtotal, parcelas)", shape=box, fillcolor="#EFE6FF"];
+    n12 [label="12\nL37: if (total >= 0)", shape=diamond, fillcolor="#FFF4CC"];
+    n13 [label="13\nL38: ultimoTotal = total\nL39: aprovado = true", shape=box];
+    n14 [label="14\nL41-43: catch (RuntimeException e)\n{ vazio }", shape=box, fillcolor="#FFE0E0"];
+    n15 [label="15\nL44: return aprovado;", shape=box];
+    n16 [label="16\nSaída (L45)", shape=ellipse, fillcolor="#DDEEFF"];
+
+    n1 -> n2   [label="e1"];
+    n2 -> n3   [label="e2"];
+    n3 -> n4   [label="e3"];
+    n4 -> n5   [label="e4: V"];
+    n4 -> n8   [label="e5: F (término do laço)"];
+    n4 -> n14  [label="e6: exceção\nNullPointerException\n(precos == null)", style=dashed, color="#C00000", fontcolor="#C00000"];
+    n5 -> n6   [label="e7: V"];
+    n5 -> n7   [label="e8: F"];
+    n6 -> n7   [label="e9"];
+    n7 -> n4   [label="e10: volta do laço"];
+    n8 -> n9   [label="e11: V"];
+    n8 -> n11  [label="e12: F"];
+    n9 -> n10  [label="e13: V"];
+    n9 -> n11  [label="e14: F"];
+    n10 -> n11 [label="e15"];
+    n11 -> n12 [label="e16: normal"];
+    n11 -> n14 [label="e17: exceção\nNullPointerException propagada\nde calcularAcrescimo\n(pagamento == null)", style=dashed, color="#C00000", fontcolor="#C00000"];
+    n12 -> n13 [label="e18: V"];
+    n12 -> n15 [label="e19: F (inviável)"];
+    n13 -> n15 [label="e20: fim do try"];
+    n14 -> n15 [label="e21: fim do catch"];
+    n15 -> n16 [label="e22: return"];
+}

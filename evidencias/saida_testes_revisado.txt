@@ -1,0 +1,168 @@
+==============================================================
+Testes de ProcessadorPedidos - versao: REVISADO
+Java: 21.0.13.1
+==============================================================
+
+[CT01] calcularAcrescimo | caminho: C1
+  Entrada.......: ("PIX", 200.0, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: retorna 0.0
+  Observado.....: retornou 0.0
+  Situacao......: PASSOU
+
+[CT02] calcularAcrescimo | caminho: C2
+  Entrada.......: ("CREDITO", 200.0, 2)
+  Pre-condicao..: objeto novo
+  Esperado......: retorna 16.0 (8%; limite: menor parcelamento > 1)
+  Observado.....: retornou 16.0
+  Situacao......: PASSOU
+
+[CT03] calcularAcrescimo | caminho: C3
+  Entrada.......: ("CREDITO", 200.0, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: retorna 6.0 (3%; limite: 1 parcela)
+  Observado.....: retornou 6.0
+  Situacao......: PASSOU
+
+[CT04] calcularAcrescimo | caminho: C4
+  Entrada.......: ("BOLETO", 200.0, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (forma de pagamento nao suportada)
+  Observado.....: lancou IllegalArgumentException ("Forma de pagamento não suportada: BOLETO")
+  Situacao......: PASSOU
+
+[CT05] calcularAcrescimo | caminho: C4
+  Entrada.......: ("credito", 200.0, 3)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao ("credito" minusculo nao e forma valida)
+  Observado.....: lancou IllegalArgumentException ("Forma de pagamento não suportada: credito")
+  Situacao......: PASSOU
+
+[CT06] calcularAcrescimo | caminho: C3
+  Entrada.......: ("CREDITO", 200.0, 0)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (parcelas < 1)
+  Observado.....: lancou IllegalArgumentException ("Quantidade de parcelas inválida: 0")
+  Situacao......: PASSOU
+
+[CT07] calcularAcrescimo | caminho: C3
+  Entrada.......: ("CREDITO", -100.0, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (subtotal negativo)
+  Observado.....: lancou IllegalArgumentException ("Subtotal inválido: -100.0")
+  Situacao......: PASSOU
+
+[CT08] calcularAcrescimo | caminho: excecao no no 2
+  Entrada.......: (null, 200.0, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (pagamento nulo)
+  Observado.....: lancou IllegalArgumentException ("Forma de pagamento não informada.")
+  Situacao......: PASSOU
+
+[CT09] processar | caminho: B1 + C1
+  Entrada.......: ([50.0], "PIX", false, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: retorna true; getUltimoTotal() = 50.0
+  Observado.....: retornou true; getUltimoTotal() = 50.0
+  Situacao......: PASSOU
+
+[CT10] processar | caminho: B2 + C1
+  Entrada.......: ([], "PIX", false, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (pedido sem itens); getUltimoTotal() = 0.0
+  Observado.....: lancou IllegalArgumentException ("O pedido deve conter ao menos um item."); getUltimoTotal() = 0.0
+  Situacao......: PASSOU
+
+[CT11] processar | caminho: B3 + C1
+  Entrada.......: ([-10.0], "PIX", false, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (preco negativo); getUltimoTotal() = 0.0
+  Observado.....: lancou IllegalArgumentException ("Preço inválido na posição 0: -10.0"); getUltimoTotal() = 0.0
+  Situacao......: PASSOU
+
+[CT12] processar | caminho: B4 + C1
+  Entrada.......: ([100.0], "PIX", true, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: retorna true; getUltimoTotal() = 100.0 (limite: 100 nao recebe desconto)
+  Observado.....: retornou true; getUltimoTotal() = 100.0
+  Situacao......: PASSOU
+
+[CT13] processar | caminho: B5 + C2
+  Entrada.......: ([200.0], "CREDITO", true, 2)
+  Pre-condicao..: objeto novo
+  Esperado......: retorna true; getUltimoTotal() = 194.4 (180.0 + 8% de 180.0)
+  Observado.....: retornou true; getUltimoTotal() = 194.4
+  Situacao......: PASSOU
+
+[CT14] processar | caminho: B5 + C1
+  Entrada.......: ([100.01], "PIX", true, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: retorna true; getUltimoTotal() = 90.009 (limite: logo acima de 100)
+  Observado.....: retornou true; getUltimoTotal() = 90.009
+  Situacao......: PASSOU
+
+[CT15] processar | caminho: B6
+  Entrada.......: ([50.0], null, false, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (pagamento nulo); getUltimoTotal() = 0.0
+  Observado.....: lancou IllegalArgumentException ("Forma de pagamento não informada."); getUltimoTotal() = 0.0
+  Situacao......: PASSOU
+
+[CT16] processar | caminho: B8
+  Entrada.......: (null, "PIX", false, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (precos nulo); getUltimoTotal() = 0.0
+  Observado.....: lancou IllegalArgumentException ("O pedido deve conter ao menos um item."); getUltimoTotal() = 0.0
+  Situacao......: PASSOU
+
+[CT17] processar | caminho: B8 (apos B1)
+  Entrada.......: (null, "PIX", false, 1)
+  Pre-condicao..: mesmo objeto ja aprovou ([50.0], "PIX", false, 1)
+  Esperado......: lanca excecao (precos nulo); getUltimoTotal() continua 50.0
+  Observado.....: lancou IllegalArgumentException ("O pedido deve conter ao menos um item."); getUltimoTotal() = 50.0
+  Situacao......: PASSOU
+
+[CT18] processar | caminho: B6 (apos B1)
+  Entrada.......: ([80.0], null, false, 1)
+  Pre-condicao..: mesmo objeto ja aprovou ([50.0], "PIX", false, 1)
+  Esperado......: lanca excecao (pagamento nulo); getUltimoTotal() continua 50.0
+  Observado.....: lancou IllegalArgumentException ("Forma de pagamento não informada."); getUltimoTotal() = 50.0
+  Situacao......: PASSOU
+
+[CT19] processar | caminho: B1 + B3 (2 iteracoes)
+  Entrada.......: ([10.0, NaN], "PIX", false, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (preco NaN); getUltimoTotal() = 0.0
+  Observado.....: lancou IllegalArgumentException ("Preço inválido na posição 1: NaN"); getUltimoTotal() = 0.0
+  Situacao......: PASSOU
+
+[CT20] processar | caminho: B1 + C1
+  Entrada.......: ([Infinity], "PIX", false, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (preco infinito); getUltimoTotal() = 0.0
+  Observado.....: lancou IllegalArgumentException ("Preço inválido na posição 0: Infinity"); getUltimoTotal() = 0.0
+  Situacao......: PASSOU
+
+[CT21] processar | caminho: B1 (2 iteracoes) + C3
+  Entrada.......: ([0.0, 50.0], "CREDITO", false, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: retorna true; getUltimoTotal() = 51.5 (preco 0 e valido; 3%)
+  Observado.....: retornou true; getUltimoTotal() = 51.5
+  Situacao......: PASSOU
+
+[CT22] processar | caminho: B1 + C3
+  Entrada.......: ([50.0], "CREDITO", false, 0)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (parcelas < 1); getUltimoTotal() = 0.0
+  Observado.....: lancou IllegalArgumentException ("Quantidade de parcelas inválida: 0"); getUltimoTotal() = 0.0
+  Situacao......: PASSOU
+
+[CT23] processar | caminho: B1 (2 iteracoes) + C1
+  Entrada.......: ([Double.MAX_VALUE, Double.MAX_VALUE], "PIX", false, 1)
+  Pre-condicao..: objeto novo
+  Esperado......: lanca excecao (soma dos precos estoura para infinito); getUltimoTotal() = 0.0
+  Observado.....: lancou IllegalArgumentException ("A soma dos preços excede o limite representável."); getUltimoTotal() = 0.0
+  Situacao......: PASSOU
+==============================================================
+Resumo (REVISADO): 23 casos | 23 PASSOU | 0 FALHOU
+==============================================================

@@ -1,0 +1,33 @@
+// Grafo de fluxo de controle - calcularAcrescimo(...) - código ORIGINAL (linhas 6 a 23)
+// Gerar imagem: dot -Tpng grafo_calcularAcrescimo.dot -o grafo_calcularAcrescimo.png
+digraph calcularAcrescimo {
+    graph [label="calcularAcrescimo(String pagamento, double subtotal, int parcelas) - ORIGINAL\nN = 11   E = 13   P = 1   V(G) = 13 - 11 + 2 = 4", labelloc=t, fontsize=16, fontname="Helvetica", nodesep=0.6, ranksep=0.55];
+    node  [fontname="Helvetica", fontsize=11, style=filled, fillcolor="#FFFFFF"];
+    edge  [fontname="Helvetica", fontsize=10];
+
+    n1  [label="1\nEntrada (L6)", shape=ellipse, fillcolor="#DDEEFF"];
+    n2  [label="2\nL7: double acrescimo = 0", shape=box];
+    n3  [label="3\nL8: switch (pagamento)", shape=diamond, fillcolor="#FFF4CC"];
+    n4  [label="4\nL9-11: case \"PIX\":\nacrescimo = 0; break;", shape=box];
+    n5  [label="5\nL13: if (parcelas > 1)", shape=diamond, fillcolor="#FFF4CC"];
+    n6  [label="6\nL14: acrescimo =\nsubtotal * 0.08", shape=box];
+    n7  [label="7\nL16: acrescimo =\nsubtotal * 0.03", shape=box];
+    n8  [label="8\nL18: break;", shape=box];
+    n9  [label="9\nL19-20: default:\nacrescimo = 0", shape=box];
+    n10 [label="10\nL21-22: fim do switch\nreturn acrescimo;", shape=box];
+    n11 [label="11\nSaída (L23)", shape=ellipse, fillcolor="#DDEEFF"];
+
+    n1 -> n2   [label="e1"];
+    n2 -> n3   [label="e2"];
+    n3 -> n4   [label="e3: \"PIX\""];
+    n3 -> n5   [label="e4: \"CREDITO\""];
+    n3 -> n9   [label="e5: default"];
+    n4 -> n10  [label="e6: break"];
+    n5 -> n6   [label="e7: V"];
+    n5 -> n7   [label="e8: F"];
+    n6 -> n8   [label="e9"];
+    n7 -> n8   [label="e10"];
+    n8 -> n10  [label="e11: break"];
+    n9 -> n10  [label="e12"];
+    n10 -> n11 [label="e13: return"];
+}
